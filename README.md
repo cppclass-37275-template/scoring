@@ -2,7 +2,10 @@
 
 ### 📢 안내
 - 📟터미널에서 다음 명령어로 💯채점 스크립트를 실행해 볼 수 있습니다.
-   - `chmod +x scoring.sh && ./scoring.sh`
+`curl -fsSL https://raw.githubusercontent.com/cppclass-37275-template/scoring/main/scoring.sh -o scoring.sh`
+`chmod +x scoring.sh`
+`g++ main.cpp -o main`
+`./scoring.sh`  
 
 ## 📌참고
 - `chmod +x scoring.sh && ./scoring.sh`: scoring.sh에 대해 실행(eXecute) 가능한 권한을 추가(+)하고 scoring.sh를 실행
