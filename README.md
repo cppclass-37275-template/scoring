@@ -1,6 +1,6 @@
 # scoring
 
-### 📢 안내
+## 📢 안내
 - 📟터미널에서 다음 명령어로 💯채점 스크립트를 실행해 볼 수 있습니다.
 ```
 curl -fsSL https://raw.githubusercontent.com/cppclass-37275-template/scoring/main/scoring.sh -o scoring.sh
