@@ -1,13 +1,14 @@
 #!/bin/bash
 # =============================================================================
-# scoring.sh  ─  timeOfDay / alarm 과제 자동채점 (20점 만점)
+# scoring.sh  ─  timeOfDay / alarm 과제 자동채점 (최종 통합본, 20점 만점)
 # =============================================================================
 # 항목별 배점:
 #   [컴파일]       4점
 #   [네임스페이스] 3점
-#   [timeOfDay]    5점
-#   [alarm]        4점
-#   [main/출력]    4점
+#   [timeOfDay]    4점  
+#   [alarm]        3점  
+#   [예외 처리]     3점  (scoring1g의 동적 예외 기능 추가 🌟)
+#   [main/출력]    3점  (유연한 출력 매칭)
 # =============================================================================
 
 TOTAL=0
@@ -58,7 +59,7 @@ cat timeOfDay.h alarm.h main.cpp > "$ALL_SRC"
 # =============================================================================
 # 2. 네임스페이스 감지 (학번포함 자동 추출)
 # =============================================================================
-# "namespace Xxx123" 패턴 중 std/HongGil 이외의 첫 번째를 사용
+# "namespace Xxx123" 또는 "namespace Xxx" 패턴 중 std 이외의 첫 번째를 사용
 DETECTED_NS=$(grep -oE 'namespace\s+[A-Za-z][A-Za-z0-9]+' "$ALL_SRC" \
               | grep -v 'namespace std' \
               | head -1 \
@@ -91,15 +92,15 @@ fi
 # =============================================================================
 # 4. [네임스페이스] 3점
 # =============================================================================
-section "[네임스페이스] (3점)"
+section "[네임스페이스 검증] (3점)"
 
-# 4-1. 이름학번 패턴 네임스페이스가 세 파일에 존재 (1점)
-NS_COUNT=$(grep -lE "namespace\s+[A-Z][A-Za-z]+[0-9]+" \
+# 4-1. 이름학번 패턴 네임스페이스 존재 여부 (1점)
+NS_COUNT=$(grep -lE "namespace\s+[A-Za-z][A-Za-z0-9]+" \
            timeOfDay.h alarm.h main.cpp | wc -l)
 if [[ $NS_COUNT -ge 2 ]]; then
-    pass "이름+학번 형식 네임스페이스 사용 ($NS_COUNT/3 파일)" 1
+    pass "사용자 정의 네임스페이스 사용 ($NS_COUNT/3 파일)" 1
 else
-    fail "이름+학번 형식 네임스페이스 미사용 또는 일부 누락"
+    fail "사용자 정의 네임스페이스 미사용 또는 일부 누락"
 fi
 
 # 4-2. 헤더 파일에 using 지시자(using namespace) 없음 (1점)
@@ -113,8 +114,6 @@ fi
 
 # 4-3. 헤더에서 std:: 지정자 사용 또는 cpp에서 블록 내 using 사용 (1점)
 HEADER_QUALIFIER=$(grep -E 'std::' timeOfDay.h alarm.h 2>/dev/null | wc -l)
-BLOCK_USING=$(grep -E '\{\s*using\s+namespace|using\s+namespace.*\{' main.cpp 2>/dev/null | wc -l)
-# cpp 파일에서 함수/블록 범위 using (중괄호 안) - 단순히 using namespace가 있고 헤더엔 없으면 부분인정
 CPP_USING=$(grep -E 'using\s+namespace' main.cpp 2>/dev/null | wc -l)
 if [[ $HEADER_QUALIFIER -ge 1 ]] || [[ $CPP_USING -ge 1 ]]; then
     pass "헤더에 std:: 지정자 사용 / cpp에 using 지시자 사용" 1
@@ -123,9 +122,9 @@ else
 fi
 
 # =============================================================================
-# 5. [timeOfDay 클래스] 5점
+# 5. [timeOfDay 클래스] 4점
 # =============================================================================
-section "[timeOfDay 클래스] (5점)"
+section "[timeOfDay 클래스 구조 구현] (4점)"
 
 # 5-1. private 멤버변수 hour, minute (1점)
 if grep -qE 'int\s+hour' timeOfDay.h && grep -qE 'int\s+minute' timeOfDay.h; then
@@ -134,14 +133,7 @@ else
     fail "hour 또는 minute 멤버변수 누락"
 fi
 
-# 5-2. testHour / testMinute 존재 (1점)
-if grep -qE 'testHour' timeOfDay.h && grep -qE 'testMinute' timeOfDay.h; then
-    pass "testHour / testMinute 정의" 1
-else
-    fail "testHour 또는 testMinute 누락"
-fi
-
-# 5-3. 생성자에 기본값 & test 호출 (1점)
+# 5-2. 생성자에 기본값 설정 확인 (1점)
 CTOR_LINE=$(grep -n 'timeOfDay\s*(' timeOfDay.h | head -5)
 if echo "$CTOR_LINE" | grep -qE '=\s*0' ; then
     pass "생성자 기본값 설정 확인" 1
@@ -149,14 +141,14 @@ else
     fail "생성자 기본값 미설정 (= 0 패턴 미발견)"
 fi
 
-# 5-4. print const + setw/setfill 또는 0패딩 (1점)
+# 5-3. print const 정의 (1점)
 if grep -qE 'void\s+print\s*\(\s*\)\s*const' timeOfDay.h; then
     pass "print() const 정의" 1
 else
     fail "print() const 누락"
 fi
 
-# 5-5. get 접근함수 (getHour, getMinute) (1점)
+# 5-4. get 접근함수 (getHour, getMinute) (1점)
 if grep -qE 'getHour' timeOfDay.h && grep -qE 'getMinute' timeOfDay.h; then
     pass "getHour() / getMinute() 정의" 1
 else
@@ -164,96 +156,123 @@ else
 fi
 
 # =============================================================================
-# 6. [alarm 클래스] 4점
+# 6. [alarm 클래스] 3점
 # =============================================================================
-section "[alarm 클래스] (4점)"
+section "[alarm 클래스 구조 구현] (3점)"
 
-# 6-1. timeOfDay wakeTime 멤버 (1점)
-if grep -qE 'timeOfDay\s+wakeTime' alarm.h; then
-    pass "timeOfDay형 wakeTime 멤버 선언" 1
+# 6-1. timeOfDay wakeTime 및 bool inActive 멤버 (1점)
+if grep -qE 'timeOfDay\s+wakeTime' alarm.h && grep -qE 'bool\s+inActive' alarm.h; then
+    pass "필수 멤버 변수 선언 (wakeTime, inActive)" 1
 else
-    fail "wakeTime 멤버 누락 또는 타입 오류"
+    fail "wakeTime 또는 inActive 멤버 누락"
 fi
 
-# 6-2. bool inActive (1점)
-if grep -qE 'bool\s+inActive' alarm.h; then
-    pass "bool inActive 멤버 선언" 1
-else
-    fail "inActive 멤버 누락"
-fi
-
-# 6-3. print에 on/off 포함 (1점)
+# 6-2. print에 on/off 포함 (1점)
 if grep -qE '"on"|"off"' alarm.h; then
     pass "print()에 on/off 문자열 포함" 1
 else
     fail "print()에 on/off 없음"
 fi
 
-# 6-4. wakeTime 참조 반환 접근함수 (1점)
+# 6-3. wakeTime 참조 반환 접근함수 (1점)
 if grep -qE 'timeOfDay\s*&' alarm.h; then
-    pass "wakeTime 참조 반환 접근함수" 1
+    pass "wakeTime 참조 반환 접근함수 (&)" 1
 else
     fail "wakeTime 참조 반환 접근함수 누락"
 fi
 
 # =============================================================================
-# 7. [main / 출력] 4점  (컴파일 성공 시에만)
+# 7. [예외 처리 실제 검증] 3점 🌟 (scoring1g 기능 이식 및 업그레이드)
 # =============================================================================
-section "[main 및 실행 출력] (4점)"
+section "[예외 처리 동적 검증] (3점)"
+
+if [[ "$DETECTED_NS" == "UNKNOWN" ]]; then
+    fail "네임스페이스가 감지되지 않아 예외 처리 테스트를 건너넙니다."
+else
+    # 무효한 시간(25시)을 주입한 독립적인 예외 테스트 파일 생성
+    cat << EOF > "$BUILD_DIR/test_exception.cpp"
+#include "timeOfDay.h"
+#include <iostream>
+int main() {
+    try {
+        ${DETECTED_NS}::timeOfDay invalidTime(25, 0);
+    } catch (...) {
+        return 1; // 예외 발생 시 정상 catch 처리
+    }
+    return 0; 
+}
+EOF
+
+    (cd "$BUILD_DIR" && g++ -std=c++17 test_exception.cpp -o test_exc_prog 2>/dev/null)
+    
+    if [[ -f "$BUILD_DIR/test_exc_prog" ]]; then
+        # 실행 후 종료 코드 확인 (std::exit(1) 혹은 catch를 통해 1이 반환되는지 확인)
+        timeout 3 "$BUILD_DIR/test_exc_prog"
+        EXC_EXIT=$?
+        
+        if [[ $EXC_EXIT -eq 1 ]]; then
+            pass "잘못된 입력(25시)에 대해 시스템이 안전하게 종료 코드 1을 반환함" 3
+        else
+            fail "비정상 입력 시 프로그램이 exit code 1로 종료되지 않음 (수행 결과: $EXC_EXIT)"
+        fi
+    else
+        fail "예외 테스트 코드 컴파일 실패 (timeOfDay 구조 혹은 파일 포함 관계 오류)"
+    fi
+fi
+
+# =============================================================================
+# 8. [main / 출력] 3점 (실행 출력 검증)
+# =============================================================================
+section "[main 및 실행 출력 검증] (3점)"
 
 if [[ "$COMPILED" == false ]]; then
     fail "컴파일 실패로 실행 채점 생략"
 else
-    # 7-1. compareTimeOfDay 비멤버함수 정의 (1점)
-    if grep -qE 'compareTimeOfDay' main.cpp && \
-       grep -qE 'const\s+timeOfDay\s*&' main.cpp; then
+    # 8-1. compareTimeOfDay 비멤버함수 정의 (1점)
+    if grep -qE 'compareTimeOfDay' main.cpp && grep -qE 'const\s+timeOfDay\s*&' main.cpp; then
         pass "compareTimeOfDay(const timeOfDay&, const timeOfDay&) 정의" 1
     else
-        fail "compareTimeOfDay 비멤버함수 누락 또는 시그니처 오류"
+        fail "compareTimeOfDay 비멤버함수 누락 또는 참조(const &) 미사용"
     fi
 
-    # 실행 출력 캡처 (stdin 없이)
+    # 실행 출력 캡처
     ACTUAL_OUT=$(echo "" | timeout 5 "$BINARY" 2>/dev/null)
     RUN_EXIT=$?
 
     if [[ $RUN_EXIT -ne 0 ]]; then
-        fail "실행 중 오류 (exit code: $RUN_EXIT)"
-        info "출력: $ACTUAL_OUT"
+        fail "실행 중 런타임 에러 발생 (exit code: $RUN_EXIT)"
     else
-        info "실제 출력:"
+        info "실제 프로그램 출력결과:"
         echo "$ACTUAL_OUT" | sed 's/^/    /'
 
-        # 7-2. 기본 alarm 출력: 00:00 alarm is off (1점)
-        if echo "$ACTUAL_OUT" | grep -qE '00:00\s+alarm\s+is\s+off'; then
-            pass "기본 alarm1 출력 (00:00 alarm is off)" 1
+        # 8-2. 알람 출력 포맷 검증 (1점)
+        # 00:00 alarm is off 또는 on 패턴이 존재하는지 유연하게 검사
+        if echo "$ACTUAL_OUT" | grep -qE '[0-9]{2}:[0-9]{2}\s+alarm\s+is\s+(on|off)'; then
+            pass "알람 기본 출력 포맷 일치 (HH:MM alarm is on/off)" 1
         else
-            fail "기본 alarm1 출력 불일치 (예상: '00:00 alarm is off')"
+            fail "알람 출력 포맷 불일치 (예상 패턴: 'XX:XX alarm is on/off')"
         fi
 
-        # 7-3. alarm2 출력: HH:MM alarm is on (1점)
-        if echo "$ACTUAL_OUT" | grep -qE '[0-9]{2}:[0-9]{2}\s+alarm\s+is\s+on'; then
-            pass "alarm2 출력 (XX:XX alarm is on)" 1
+        # 8-3. 비교 결과 출력 확인 (1점)
+        if echo "$ACTUAL_OUT" | grep -qE '(same|different)'; then
+            pass "compareTimeOfDay 결과 출력 확인 (same 또는 different)" 1
         else
-            fail "alarm2 출력 불일치 (예상: 'XX:XX alarm is on')"
-        fi
-
-        # 7-4. same 또는 different 출력 (1점)
-        if echo "$ACTUAL_OUT" | grep -qE '^(same|different)$'; then
-            pass "compareTimeOfDay 결과 출력 (same/different)" 1
-        else
-            fail "same 또는 different 출력 없음"
+            fail "출력결과에 'same' 또는 'different' 문구 누락"
         fi
     fi
 fi
 
 # =============================================================================
-# 최종 점수
+# 최종 점수 출력
 # =============================================================================
 echo -e "\n${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
-echo -e "${BOLD}  최종 점수: ${CYAN}$TOTAL${RESET}${BOLD} / $MAX${RESET}"
+echo -e "${BOLD}  최종 합산 점수: ${CYAN}$TOTAL${RESET}${BOLD} / $MAX${RESET}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 
-# GitHub Classroom 자동채점용 exit code
+# 임시 빌드 디렉토리 삭제 정리
+rm -rf "$BUILD_DIR"
+
+# GitHub Classroom 호환용 exit code
 if [[ $TOTAL -ge $MAX ]]; then
     exit 0
 else
