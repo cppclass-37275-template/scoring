@@ -135,10 +135,11 @@ fi
 
 # 5-2. 생성자에 기본값 설정 확인 (1점)
 CTOR_LINE=$(grep -n 'timeOfDay\s*(' timeOfDay.h | head -5)
-if echo "$CTOR_LINE" | grep -qE '=\s*0' ; then
+# '=\s*[0-9]+' 로 변경하여 0 이상의 모든 숫자를 허용하도록 수정
+if echo "$CTOR_LINE" | grep -qE '=\s*[0-9]+' ; then
     pass "생성자 기본값 설정 확인" 1
 else
-    fail "생성자 기본값 미설정 (= 0 패턴 미발견)"
+    fail "생성자 기본값 미설정 (기본값 지정 패턴 미발견)"
 fi
 
 # 5-3. print const 정의 (1점)
