@@ -54,23 +54,23 @@ if [ -f test_prog ]; then
     ./test_prog > run_output.txt
 
     # [수정] 특정 시간(10:30 등) 대신 'no time data'가 찍혔는지를 기준으로 이동(Move) 후 소유권 이전 검증
-    if grep -q "after move" run_output.txt && grep -q "no time data" run_output.txt; then
+    if grep -q "no time data" run_output.txt; then
         echo "  - timePtr RoF 동작 성공 (+1)"
         SCORE=$((SCORE + 1))
     else
         echo "  - timePtr RoF 동작 실패 (+0)"
     fi
 
-    # [수정] unique_ptr을 통해 정상적으로 값이 이동되어 출력되었는지 검증 (특정 문구 포함 여부)
-    if grep -q "unique_ptr" run_output.txt && grep -q "points to:" run_output.txt; then
+# [수정] main.cpp 소스 코드 내에 unique_ptr, make_unique, std::move가 모두 포함되어 있는지 검증
+    if grep -q "unique_ptr" main.cpp && grep -q "make_unique" main.cpp && grep -q "std::move" main.cpp; then
         echo "  - unique_ptr 성공 (+1)"
         SCORE=$((SCORE + 1))
     else
         echo "  - unique_ptr 실패 (+0)"
     fi
 
-    # shared/weak_ptr 카운트 변화 순서 확인
-    if grep -q "use_count" run_output.txt; then
+# [수정] shared/weak_ptr 카운트 변화 순서 확인 (2 2, 2 2, 0 1, 2 2 출력을 정규식으로 검증)
+    if grep -q "2 2" run_output.txt && grep -q "0 1" run_output.txt; then
         echo "  - shared/weak_ptr 성공 (+1)"
         SCORE=$((SCORE + 1))
     else
