@@ -69,8 +69,8 @@ if [ -f test_prog ]; then
         echo "  - unique_ptr 실패 (+0)"
     fi
 
-# [수정] shared/weak_ptr 카운트 변화 순서 확인 (2 2, 2 2, 0 1, 2 2 출력을 정규식으로 검증)
-    if grep -q "2 2" run_output.txt && grep -q "0 1" run_output.txt; then
+# [수정] 모든 공백/줄바꿈을 제거하고 숫자 순서가 22220122인지 정확히 체크
+    if [ "$(tr -d '[:space:]' < run_output.txt | grep -o '22220122')" = "22220122" ]; then
         echo "  - shared/weak_ptr 성공 (+1)"
         SCORE=$((SCORE + 1))
     else
