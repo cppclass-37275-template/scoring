@@ -17,8 +17,23 @@ fi
 echo "------------------------------------------"
 echo "[timeOfDay.h 정적 분석]"
 
-grep -q "operator++\s*(\s*)" timeOfDay.h && { echo "  - operator++ 전위 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator++ 전위 실패 (+0)"
-grep -q "operator++\s*(\s*int" timeOfDay.h && { echo "  - operator++ 후위 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator++ 후위 실패 (+0)"
+#grep -q "operator++\s*(\s*)" timeOfDay.h && { echo "  - operator++ 전위 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator++ 전위 실패 (+0)"
+#grep -q "operator++\s*(\s*int" timeOfDay.h && { echo "  - operator++ 후위 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator++ 후위 실패 (+0)"
+# [수정] operator++ 전위 구현에 this가 포함되어 있는지 체크
+    if grep -A 5 "operator++\s*(\s*)" timeOfDay.h | grep -q "this"; then
+        echo "  - operator++ 전위 성공 (+1)"
+        SCORE=$((SCORE + 1))
+    else
+        echo "  - operator++ 전위 실패 (+0)"
+    fi
+
+    # [수정] operator++ 후위 구현에 this가 포함되어 있는지 체크
+    if grep -A 5 "operator++\s*(\s*int" timeOfDay.h | grep -q "this"; then
+        echo "  - operator++ 후위 성공 (+1)"
+        SCORE=$((SCORE + 1))
+    else
+        echo "  - operator++ 후위 실패 (+0)"
+    fi
 grep -q "operator+=" timeOfDay.h && { echo "  - operator+= 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator+= 실패 (+0)"
 grep -q "operator\s*>>" timeOfDay.h && { echo "  - operator>> 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator>> 실패 (+0)"
 grep -q "operator\s*<<" timeOfDay.h && { echo "  - operator<< 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator<< 실패 (+0)"
