@@ -20,8 +20,8 @@ echo "[timeOfDay.h 정적 분석]"
 
 #grep -q "operator++\s*(\s*)" timeOfDay.h && { echo "  - operator++ 전위 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator++ 전위 실패 (+0)"
 #grep -q "operator++\s*(\s*int" timeOfDay.h && { echo "  - operator++ 후위 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator++ 후위 실패 (+0)"
-# [수정] operator++ 전위 구현에 this가 포함되어 있는지 체크
-    if grep -A 5 "operator++\s*(\s*)" timeOfDay.h | grep -q "this"; then
+    # operator++ 문과 return *this가 한 흐름에 있는지 확인 (패턴 완화)
+    if grep -A 10 "operator++\s*(\s*)" timeOfDay.h | grep -q "return\s*\*this"; then
         echo "  - operator++ 전위 성공 (+1)"
         SCORE=$((SCORE + 1))
     else
