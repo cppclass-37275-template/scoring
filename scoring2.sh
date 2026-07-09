@@ -5,7 +5,8 @@ SCORE=0
 echo "=========================================="
 # 1. 빌드 성공 채점 (1점)
 echo -n "[빌드 성공] 빌드를 시도합니다... "
-g++ -std=c++14 main.cpp -o test_prog 2>/dev/null
+#g++ -std=c++14 main.cpp -o test_prog 2>/dev/null
+g++ -std=c++14 main.cpp -I. -o test_prog
 if [ $? -eq 0 ]; then
     echo "성공 (+1)"
     SCORE=$((SCORE + 1))
