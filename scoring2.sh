@@ -28,13 +28,14 @@ echo "[timeOfDay.h 정적 분석]"
         echo "  - operator++ 전위 실패 (+0)"
     fi
 
-    # [수정] operator++ 후위 구현에 this가 포함되어 있는지 체크
-    if grep -A 5 "operator++\s*(\s*int" timeOfDay.h | grep -q "this"; then
+    # [수정] 후위 구현 체크: 검색 범위를 10줄(-A 10)로 넉넉하게 늘려 공백/주석이 있어도 안전하게 검색
+    if grep -A 10 "operator++\s*(\s*int" timeOfDay.h | grep -q "this"; then
         echo "  - operator++ 후위 성공 (+1)"
         SCORE=$((SCORE + 1))
     else
         echo "  - operator++ 후위 실패 (+0)"
     fi
+    
 # operator와 += 사이에 공백(\s*)이 있어도 매칭되도록 수정
 grep -q "operator\s*+=" timeOfDay.h && { echo "  - operator+= 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator+= 실패 (+0)"
 grep -q "operator\s*>>" timeOfDay.h && { echo "  - operator>> 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator>> 실패 (+0)"
