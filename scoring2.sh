@@ -35,7 +35,8 @@ echo "[timeOfDay.h 정적 분석]"
     else
         echo "  - operator++ 후위 실패 (+0)"
     fi
-grep -q "operator+=" timeOfDay.h && { echo "  - operator+= 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator+= 실패 (+0)"
+# operator와 += 사이에 공백(\s*)이 있어도 매칭되도록 수정
+grep -q "operator\s*+=" timeOfDay.h && { echo "  - operator+= 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator+= 실패 (+0)"
 grep -q "operator\s*>>" timeOfDay.h && { echo "  - operator>> 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator>> 실패 (+0)"
 grep -q "operator\s*<<" timeOfDay.h && { echo "  - operator<< 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator<< 실패 (+0)"
 grep -q "operator\s*==" timeOfDay.h && { echo "  - operator== 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator== 실패 (+0)"
