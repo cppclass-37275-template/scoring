@@ -22,7 +22,8 @@ echo "[timeOfDay.h 정적 분석]"
 #grep -q "operator++\s*(\s*int" timeOfDay.h && { echo "  - operator++ 후위 성공 (+1)"; SCORE=$((SCORE + 1)); } || echo "  - operator++ 후위 실패 (+0)"
     # operator++ 문과 return *this가 한 흐름에 있는지 확인 (패턴 완화)
     # return과 *this 사이에 공백이나 줄바꿈이 어떻게 들어가든(임의의 공백 \s*) 매칭되도록 수정 -q -> -pz
-    if grep -A 20 "operator++\s*(\s*)" timeOfDay.h | grep -pz "return\s*\*this"; then
+    # operator++() 뒤에 중괄호나 공백, 어떠한 문자(\s* 또는 .* )가 와도 매칭되도록 수정
+    if grep -A 20 "operator++\s*\(\s*\)" timeOfDay.h | grep -pz "return\s*\*this"; then        
         echo "  - operator++ 전위 성공 (+1)"
         SCORE=$((SCORE + 1))
     else
