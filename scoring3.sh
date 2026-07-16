@@ -189,7 +189,7 @@ if [ -f test_prog ]; then
     fi
 
     # preciseTime 기능 동작 확인 [1점]
-    if grep -q "01:01:01" output.log && grep -q "02:02:02" output.log; then
+    if grep -q "02:02:02" output.log && grep -q "01:01:01" output.log; then
         echo "[PASS] 실행: preciseTime 인라인/출력 포맷 최종 유효 (+1점)"
         SCORE=$((SCORE + 1))
     else
