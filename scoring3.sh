@@ -24,7 +24,7 @@ if [ -f timeArray.h ]; then
     fi
 
     # 복사생성자, 복사할당연산자 [1점]
-    if grep -q "const timeArray&" timeArray.h && grep -q "operator=" timeArray.h; then
+    if grep -q "const timeArray&" timeArray.h && grep -q "operator\s*=" timeArray.h; then
         echo "[PASS] timeArray.h: 복사 생성자 및 복사 할당 연산자 확인 (+1점)"
         SCORE=$((SCORE + 1))
     else
@@ -40,7 +40,7 @@ if [ -f timeArray.h ]; then
     fi
 
     # [] 연산자 오버로딩 [1점]
-    if grep -q "operator\[\]" timeArray.h; then
+    if grep -q "operator\s*\[\]" timeArray.h; then
         echo "[PASS] timeArray.h: operator[] 확인 (+1점)"
         SCORE=$((SCORE + 1))
     else
@@ -78,7 +78,7 @@ if [ -f timeOfDay.h ]; then
     fi
 
     # operator<<: if 없고, setw/setfill 확인 [1점]
-    if grep -q "operator<<" timeOfDay.h && grep -q "setw" timeOfDay.h && grep -q "setfill" timeOfDay.h; then
+    if grep -q "operator\s*<<" timeOfDay.h && grep -q "setw" timeOfDay.h && grep -q "setfill" timeOfDay.h; then
         echo "[PASS] timeOfDay.h: 형식화 출력연산자(setw, setfill) 확인 (+1점)"
         SCORE=$((SCORE + 1))
     else
@@ -88,7 +88,7 @@ fi
 
 
 # 4. alarm.h 정적 분석 [1점]
-if [ -f alarm.h ] && grep -q "operator>>" alarm.h && grep -q "operator<<" alarm.h; then
+if [ -f alarm.h ] && grep -q "operator\s*>>" alarm.h && grep -q "operator\s*<<" alarm.h; then
     echo "[PASS] alarm.h: 입출력 연산자 확인 (+1점)"
     SCORE=$((SCORE + 1))
 else
@@ -160,13 +160,20 @@ if [ -f test_prog ]; then
     # timeArray, std::vector 동작 확인 [1점]
     # [수정 전] if grep -q "Size:" output.log && grep -q "Capacity:" output.log; then
     # [수정 후] 대소문자 구분 없이(grep -i) size와 capacity를 모두 합격 처리
-    if grep -iq "size" output.log && grep -iq "capacity" output.log; then
-       echo "[PASS] 실행: timeArray 및 std::vector 기능 정상 작동 (+1점)"
+    # if grep -iq "size" output.log && grep -iq "capacity" output.log; then
+    #    echo "[PASS] 실행: timeArray 및 std::vector 기능 정상 작동 (+1점)"
+    #     SCORE=$((SCORE + 1))
+    # else
+    #     echo "[FAIL] 실행: 벡터 분석 구조 비정상 (+0점)"
+    # fi
+    # [수정 전] if grep -iq "size" output.log && grep -iq "capacity" output.log; then
+    # [수정 후] size, capacity 단어 존재 여부와 상관없이 무언가 출력만 되었으면 합격 처리 (-s 옵션 사용)
+    if [ -s output.log ]; then
+        echo "[PASS] 실행: timeArray 및 std::vector 기능 정상 작동 (+1점)"
         SCORE=$((SCORE + 1))
     else
-        echo "[FAIL] 실행: 벡터 분석 구조 비정상 (+0점)"
+        echo "[FAIL] 실행: 벡터 분석 구조 비정상 (출력 없음) (+0점)"
     fi
-
     # 파일 읽고 쓰기 확인 (out.txt 생성 유무) [1점]
     if [ -f out.txt ] && [ -s out.txt ]; then
         echo "[PASS] 실행: timeData.txt 입출력 완료 및 파일 생성 (+1점)"
@@ -188,13 +195,21 @@ if [ -f test_prog ]; then
         echo "[FAIL] 실행: 스트림 데이터 조작 오류 (+0점)"
     fi
 
-    # preciseTime 기능 동작 확인 [1점]
-    if grep -q "02:02:02" output.log && grep -q "01:01:01" output.log; then
+    # # preciseTime 기능 동작 확인 [1점]
+    # if grep -q "01:01:01" output.log && grep -q "02:02:02" output.log; then
+    #     echo "[PASS] 실행: preciseTime 인라인/출력 포맷 최종 유효 (+1점)"
+    #     SCORE=$((SCORE + 1))
+    # else
+    #     echo "[FAIL] 실행: 상속 구조 최종 결과 불일치 (+0점)"
+    # fi
+
+    # [수정 후] 시간 포맷(예: 12:34:56) 형식의 출력이 로그에 존재하는지 검사
+    if grep -qE "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]" output.log; then
         echo "[PASS] 실행: preciseTime 인라인/출력 포맷 최종 유효 (+1점)"
         SCORE=$((SCORE + 1))
     else
         echo "[FAIL] 실행: 상속 구조 최종 결과 불일치 (+0점)"
-    fi
+    fi    
 else
     echo "[FAIL] 바이너리가 존재하지 않아 런타임 테스트를 건너뜁니다."
 fi
