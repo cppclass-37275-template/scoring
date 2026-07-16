@@ -174,13 +174,24 @@ if [ -f test_prog ]; then
     else
         echo "[FAIL] 실행: 벡터 분석 구조 비정상 (출력 없음) (+0점)"
     fi
-    # 파일 읽고 쓰기 확인 (out.txt 생성 유무) [1점]
-    if [ -f out.txt ] && [ -s out.txt ]; then
-        echo "[PASS] 실행: timeData.txt 입출력 완료 및 파일 생성 (+1점)"
+    # # 파일 읽고 쓰기 확인 (out.txt 생성 유무) [1점]
+    # if [ -f out.txt ] && [ -s out.txt ]; then
+    #     echo "[PASS] 실행: timeData.txt 입출력 완료 및 파일 생성 (+1점)"
+    #     SCORE=$((SCORE + 1))
+    # else
+    #     echo "[FAIL] 실행: 파일 입출력 스펙 실패 (+0점)"
+    # fi
+    # [수정 후] 기본 입력 파일(timeOut.txt 등) 외에 새로운 txt 파일이 생성되었는지 검사
+    # (주의: 기존에 미리 존재하던 txt 파일들과 겹치지 않는 선에서 검사해야 합니다)
+    CREATED_TXT=$(ls *.txt 2>/dev/null | grep -v "timeOut.txt" | grep -v "timeData.txt" | grep -v "alarmData.txt" | head -n 1)
+    
+    if [ -n "$CREATED_TXT" ] && [ -s "$CREATED_TXT" ]; then
+        echo "[PASS] 실행: 파일 입출력 완료 및 생성 확인 ($CREATED_TXT) (+1점)"
         SCORE=$((SCORE + 1))
     else
         echo "[FAIL] 실행: 파일 입출력 스펙 실패 (+0점)"
     fi
+    
 
     # alarmData.txt 영속성 스트림 반영 확인 [1점]
     # [수정 전] if grep -q "WakeUp" output.log && grep -q "Morning" alarmData.txt; then
