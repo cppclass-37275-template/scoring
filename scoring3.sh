@@ -167,8 +167,8 @@ if [ -f test_prog ]; then
         echo "[FAIL] 실행: 벡터 분석 구조 비정상 (+0점)"
     fi
 
-    # 파일 읽고 쓰기 확인 (timeOut.txt 생성 유무) [1점]
-    if [ -f timeOut.txt ] && [ -s timeOut.txt ]; then
+    # 파일 읽고 쓰기 확인 (out.txt 생성 유무) [1점]
+    if [ -f out.txt ] && [ -s out.txt ]; then
         echo "[PASS] 실행: timeData.txt 입출력 완료 및 파일 생성 (+1점)"
         SCORE=$((SCORE + 1))
     else
