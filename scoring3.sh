@@ -115,7 +115,7 @@ if [ -f preciseTime.h ]; then
     fi
 
     # 출력연산자, print 재정의 [1점]
-    if grep -q "print" preciseTime.h && grep -q "operator<<" preciseTime.h; then
+    if grep -q "print" preciseTime.h && grep -q "operator\s*<<" preciseTime.h; then
         echo "[PASS] preciseTime.h: 오버라이딩 및 출력 연산자 확인 (+1점)"
         SCORE=$((SCORE + 1))
     else
