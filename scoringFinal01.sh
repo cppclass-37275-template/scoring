@@ -17,6 +17,7 @@ else
 [Kim] Entry 10:30, In Use
 [Lee] Entry 13:30, Exit 15:00, Fee: 3600 won
 [Park] Entry 09:00, In Use
+(Monthly Pass / Membership Fee: 50000 won)
 [Choi] Entry 09:00, Exit 18:00, Fee: 0 won
 (Monthly Pass / Membership Fee: 50000 won)
 [Jung] Entry 23:30, Exit 23:30, Fee: 0 won
