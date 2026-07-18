@@ -31,7 +31,7 @@ EOF
         echo "1점 (출력 결과 완벽 일치)"
         TOTAL_SCORE=$((TOTAL_SCORE + 1))
     else
-        echo "1점 (컴파일은 성공했으나 출력 결과 불일치)"
+        echo "0점 (컴파일은 성공했으나 출력 결과 불일치)"
         TOTAL_SCORE=$((TOTAL_SCORE + 0))
     fi
     rm -f expected_output.txt student_output.txt main_test
@@ -98,8 +98,8 @@ else
     echo "0점 (미구현)"
 fi
 
-# 8-1. studyCafe.h input 가상함수 체크 (1점)
-echo -n "8-1. studyCafe::input 가상함수 (1점): "
+# 8. studyCafe.h input 가상함수 체크 (1점)
+echo -n "8. studyCafe::input 가상함수 (1점): "
 if grep -E "virtual[[:space:]]+void[[:space:]]+input" studyCafe.h &> /dev/null; then
     echo "1점 (확인)"
     TOTAL_SCORE=$((TOTAL_SCORE + 1))
@@ -107,8 +107,8 @@ else
     echo "0점 (미구현)"
 fi
 
-# 8-2. studyCafe.h 입력연산자(operator>>) 체크 (1점)
-echo -n "8-2. studyCafe 입력연산자 (operator>>) (1점): "
+# 9. studyCafe.h 입력연산자(operator>>) 체크 (1점)
+echo -n "9. studyCafe 입력연산자 (operator>>) (1점): "
 if grep -q "operator>>" studyCafe.h || grep -q "operator>>" main01.cpp; then
     echo "1점 (확인)"
     TOTAL_SCORE=$((TOTAL_SCORE + 1))
@@ -116,8 +116,8 @@ else
     echo "0점 (미구현)"
 fi
 
-# 9. monthlyStudyCafe.h 오버라이딩 체크 (1점)
-echo -n "9. monthlyStudyCafe 오버라이딩 버전 검증 (1점): "
+# 10. monthlyStudyCafe.h 오버라이딩 체크 (1점)
+echo -n "10. monthlyStudyCafe 오버라이딩 버전 검증 (1점): "
 if grep -E "int[[:space:]]+calculateFee[[:space:]]*\([[:space:]]*\)" monthlyStudyCafe.h &> /dev/null && \
    ! grep -Pzo "int\s+calculateFee\s*\(\s*\)\s*\{\s*\}" monthlyStudyCafe.h &> /dev/null; then
     echo "1점 (오버라이딩 로직 구현 확인)"
