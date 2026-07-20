@@ -155,38 +155,26 @@ fi
 # 7. 실행 기반 채점 드라이버
 if [ -f test_prog ]; then
     # 입력을 미리 제공하여 백그라운드 구동 실행
-    echo "timeOut.txt" | ./test_prog > output.log 2>&1
+    echo "out" | ./test_prog > output.log 2>&1
 
     # timeArray, std::vector 동작 확인 [1점]
     # [수정 전] if grep -q "Size:" output.log && grep -q "Capacity:" output.log; then
     # [수정 후] 대소문자 구분 없이(grep -i) size와 capacity를 모두 합격 처리
-    # if grep -iq "size" output.log && grep -iq "capacity" output.log; then
-    #    echo "[PASS] 실행: timeArray 및 std::vector 기능 정상 작동 (+1점)"
-    #     SCORE=$((SCORE + 1))
-    # else
-    #     echo "[FAIL] 실행: 벡터 분석 구조 비정상 (+0점)"
-    # fi
     # [수정 전] if grep -iq "size" output.log && grep -iq "capacity" output.log; then
-    # [수정 후] size, capacity 단어 존재 여부와 상관없이 무언가 출력만 되었으면 합격 처리 (-s 옵션 사용)
+    # [수정 후] size, capacity 단어 존재 여부와 상관없이 출력만 되었으면 합격 처리 (-s 옵션 사용)
     if [ -s output.log ]; then
         echo "[PASS] 실행: timeArray 및 std::vector 기능 정상 작동 (+1점)"
         SCORE=$((SCORE + 1))
     else
         echo "[FAIL] 실행: 벡터 분석 구조 비정상 (출력 없음) (+0점)"
     fi
-    # # 파일 읽고 쓰기 확인 (out.txt 생성 유무) [1점]
-    # if [ -f out.txt ] && [ -s out.txt ]; then
-    #     echo "[PASS] 실행: timeData.txt 입출력 완료 및 파일 생성 (+1점)"
-    #     SCORE=$((SCORE + 1))
-    # else
-    #     echo "[FAIL] 실행: 파일 입출력 스펙 실패 (+0점)"
-    # fi
-    # [수정 후] 기본 입력 파일(timeOut.txt 등) 외에 새로운 txt 파일이 생성되었는지 검사
+    # 파일 읽고 쓰기 확인 (out.txt 생성 유무) [1점]
+    # [수정 후] 기본 입력 파일 외에 새로운 txt 파일이 생성되었는지 검사
     # (주의: 기존에 미리 존재하던 txt 파일들과 겹치지 않는 선에서 검사해야 합니다)
-    CREATED_TXT=$(ls *.txt 2>/dev/null | grep -v "timeOut.txt" | grep -v "timeData.txt" | grep -v "alarmData.txt" | head -n 1)
+    CREATED_TXT=$(ls *.txt 2>/dev/null | grep -v "timeData.txt" | grep -v "alarmData.txt" | head -n 1)
     
     if [ -n "$CREATED_TXT" ] && [ -s "$CREATED_TXT" ]; then
-        echo "[PASS] 실행: 파일 입출력 완료 및 생성 확인 ($CREATED_TXT) (+1점)"
+        echo "[PASS] 실행: timeData.txt 파일 입출력 완료 및 생성 확인 ($CREATED_TXT) (+1점)"
         SCORE=$((SCORE + 1))
     else
         echo "[FAIL] 실행: 파일 입출력 스펙 실패 (+0점)"
@@ -206,14 +194,7 @@ if [ -f test_prog ]; then
         echo "[FAIL] 실행: 스트림 데이터 조작 오류 (+0점)"
     fi
 
-    # # preciseTime 기능 동작 확인 [1점]
-    # if grep -q "01:01:01" output.log && grep -q "02:02:02" output.log; then
-    #     echo "[PASS] 실행: preciseTime 인라인/출력 포맷 최종 유효 (+1점)"
-    #     SCORE=$((SCORE + 1))
-    # else
-    #     echo "[FAIL] 실행: 상속 구조 최종 결과 불일치 (+0점)"
-    # fi
-
+    # preciseTime 기능 동작 확인 [1점]
     # [수정 후] 시간 포맷(예: 12:34:56) 형식의 출력이 로그에 존재하는지 검사
     if grep -qE "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]" output.log; then
         echo "[PASS] 실행: preciseTime 인라인/출력 포맷 최종 유효 (+1점)"
@@ -226,7 +207,7 @@ else
 fi
 
 # 청소
-rm -f test_prog output.log timeOut.txt
+rm -f test_prog output.log 
 
 echo "--------------------------------------------"
 echo "최종 점수: ${SCORE} / ${TOTAL} 점"
