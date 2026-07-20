@@ -88,7 +88,9 @@ fi
 
 
 # 4. alarm.h 정적 분석 [1점]
-if [ -f alarm.h ] && grep -q "operator\s*>>" alarm.h && grep -q "operator\s*<<" alarm.h; then
+# if [ -f alarm.h ] && grep -q "operator\s*>>" alarm.h && grep -q "operator\s*<<" alarm.h; then
+# if [ -f alarm.h ] && grep -q "operator *>>" alarm.h && grep -q "operator *<<" alarm.h; then
+if [ -f alarm.h ] && grep -qE "operator\s*>>" alarm.h && grep -qE "operator\s*<<" alarm.h; then
     echo "[PASS] alarm.h: 입출력 연산자 확인 (+1점)"
     SCORE=$((SCORE + 1))
 else
